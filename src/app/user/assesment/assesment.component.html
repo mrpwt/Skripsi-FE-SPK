@@ -1,0 +1,91 @@
+<div class="pb-5" *ngIf="!isLoading">
+  <div class="mb-4">
+    <h3 class="fw-bold text-dark mb-1">Formulir Penilaian</h3>
+    <p class="text-secondary small">Berikan penilaian untuk setiap bidang berdasarkan kriteria yang tersedia</p>
+  </div>
+
+  <div class="alert alert-primary border-0 rounded-3 p-4 mb-4 shadow-sm"
+    style="background-color: #eef6ff; color: #1e40af;">
+    <div class="d-flex align-items-start gap-3">
+      <lucide-icon [img]="InfoIcon" size="20" class="mt-1"></lucide-icon>
+      <div>
+        <h6 class="fw-bold mb-2">Petunjuk Penilaian:</h6>
+        <ul class="mb-0 small list-unstyled">
+          <li class="mb-1">• Berikan nilai 0-100 untuk setiap kriteria</li>
+          <li class="mb-1">• 0-25 (Sangat Kurang), 26-50 (Kurang Tertarik), 51-75 (Tertarik), 76-100 (Sangat Tertarik)
+          </li>
+          @if (testCompleted) {
+          <li class="text-success fw-bold mb-1">• ✓ Nilai C3 (Bakat) otomatis terisi dari hasil Test Online</li>
+          }
+          <li>• Klik simpan untuk melihat rekomendasi berdasarkan perhitungan SAW</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <form (ngSubmit)="onSubmit()">
+    @for (alt of alternatives; track alt.id) {
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+      <div class="card-header py-3 px-4 border-0"
+        style="background: linear-gradient(90deg, #2563eb, #1d4ed8); color: white;">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <h5 class="mb-0 fw-bold">{{ alt.kode }}</h5>
+            <small class="opacity-75">{{ alt.namaBidang }}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body p-4 bg-white">
+        <div class="row g-4">
+          @for (crit of criteria; track crit.id) {
+          <div class="col-12 col-md-4">
+            <div class="d-flex flex-column h-100">
+              <label class="form-label small fw-bold text-secondary mb-2 d-flex justify-content-between">
+                <span>{{ getCritCode(crit) }} - {{ crit.namaKriteria }}</span>
+                @if (isC3(crit) && testCompleted) {
+                <span class="badge bg-success-subtle text-success">Auto</span>
+                }
+              </label>
+
+              @if (isC3(crit) && testCompleted) {
+              <div class="input-group shadow-sm mt-auto">
+                <input type="number" class="form-control bg-light fw-bold" [(ngModel)]="values[alt.id!][crit.id!]"
+                  [name]="'val_' + alt.id + '_' + crit.id" disabled />
+                <span class="input-group-text bg-light text-muted small">/100</span>
+              </div>
+              } @else {
+              <div class="mt-auto px-1">
+                <input type="range" class="form-range custom-slider" [(ngModel)]="values[alt.id!][crit.id!]"
+                  [name]="'val_' + alt.id + '_' + crit.id" min="0" max="100" step="1" />
+
+                <div class="d-flex justify-content-between align-items-center mt-1">
+                  <span class="badge bg-primary-subtle text-primary fw-bold" style="font-size: 0.85rem;">
+                    {{ values[alt.id!][crit.id!] || 0 }}
+                  </span>
+                  <span class="text-muted" style="font-size: 0.7rem;">Skala 0-100</span>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+    }
+
+    <div class="d-flex justify-content-end mt-4">
+      <button type="submit"
+        class="btn btn-primary px-5 py-3 shadow d-flex align-items-center gap-2 fw-bold rounded-pill">
+        <lucide-icon [img]="SaveIcon" size="20"></lucide-icon>
+        Proses & Lihat Hasil SAW
+      </button>
+    </div>
+  </form>
+</div>
+
+<div *ngIf="isLoading" class="text-center py-5">
+  <div class="spinner-border text-primary"></div>
+  <p class="text-muted mt-2">Memuat formulir...</p>
+</div>

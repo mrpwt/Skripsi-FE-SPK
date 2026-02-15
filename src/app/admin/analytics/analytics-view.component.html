@@ -1,0 +1,100 @@
+<div class="container-fluid p-0">
+  <div class="mb-4">
+    <h2 class="h4 fw-bold text-dark mb-1">Analitik & Statistik</h2>
+    <p class="text-muted small">Ringkasan data sistem</p>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <p class="text-secondary small fw-bold text-uppercase mb-1">Total Mahasiswa</p>
+              <h3 class="h2 fw-bold mb-0">{{ totalStudents }}</h3>
+            </div>
+            <div class="bg-primary bg-opacity-10 p-3 rounded-3">
+              <lucide-icon [img]="Users" class="text-primary" size="28"></lucide-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <p class="text-secondary small fw-bold text-uppercase mb-1">Total Kriteria</p>
+              <h3 class="h2 fw-bold mb-0">{{ totalCriteria }}</h3>
+            </div>
+            <div class="bg-success bg-opacity-10 p-3 rounded-3">
+              <lucide-icon [img]="BarChart3" class="text-success" size="28"></lucide-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <p class="text-secondary small fw-bold text-uppercase mb-1">Total Bidang</p>
+              <h3 class="h2 fw-bold mb-0">{{ totalAlternatives }}</h3>
+            </div>
+            <div class="bg-info bg-opacity-10 p-3 rounded-3">
+              <lucide-icon [img]="ClipboardList" class="text-info" size="28"></lucide-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <p class="text-secondary small fw-bold text-uppercase mb-1">Rata-rata Nilai</p>
+              <h3 class="h2 fw-bold mb-0">{{ overallAverage }}</h3>
+            </div>
+            <div class="bg-warning bg-opacity-10 p-3 rounded-3">
+              <lucide-icon [img]="TrendingUp" class="text-warning" size="28"></lucide-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <h3 class="h5 fw-bold text-dark mb-4">Rata-rata Nilai per Kriteria</h3>
+      <div class="row">
+        <div class="col-12 col-lg-8">
+          @for (criterion of criterionAverages; track criterion.code) {
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-medium text-secondary small">{{ criterion.code }} - {{ criterion.name }}</span>
+                <span class="fw-bold text-primary small">{{ criterion.average | number:'1.1-1' }}</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div 
+                  class="progress-bar bg-primary rounded-pill transition-all" 
+                  role="progressbar" 
+                  [style.width.%]="criterion.average" 
+                  [attr.aria-valuenow]="criterion.average" 
+                  aria-valuemin="0" 
+                  aria-valuemax="100">
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h4 fw-bold mb-1">Manajemen Soal Test</h2>
+            <p class="text-muted small mb-0">Kelola soal untuk ujian penempatan bidang</p>
+        </div>
+        <button (click)="handleAdd()" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+            [disabled]="isAdding">
+            <lucide-icon [img]="Plus" size="18"></lucide-icon> Tambah Soal
+        </button>
+    </div>
+
+    <div class="row g-4">
+        @if (isAdding || editingId) {
+        <div class="col-12">
+            <div class="card border-primary bg-light shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-primary mb-4">{{ isAdding ? 'Tambah Soal Baru' : 'Edit Soal' }}</h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Pertanyaan</label>
+                            <textarea [(ngModel)]="formData.pertanyaan" class="form-control" rows="2"
+                                placeholder="Tuliskan soal..."></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Opsi A</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white">A</span>
+                                <input type="text" [(ngModel)]="formData.opsi.A" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Opsi B</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white">B</span>
+                                <input type="text" [(ngModel)]="formData.opsi.B" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Opsi C</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white">C</span>
+                                <input type="text" [(ngModel)]="formData.opsi.C" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Opsi D</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white">D</span>
+                                <input type="text" [(ngModel)]="formData.opsi.D" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Jawaban Benar</label>
+                            <select [(ngModel)]="formData.jawabanBenar" class="form-select form-select-sm">
+                                <option value="A">Opsi A</option>
+                                <option value="B">Opsi B</option>
+                                <option value="C">Opsi C</option>
+                                <option value="D">Opsi D</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Bidang Terkait</label>
+                            <select [(ngModel)]="formData.bidangId" class="form-select form-select-sm">
+                                @for (alt of alternatives; track alt.id) {
+                                <option [value]="alt.id">{{ alt.namaBidang }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button (click)="handleSave()" class="btn btn-success px-4 d-flex align-items-center gap-2">
+                            <lucide-icon [img]="Save" size="18"></lucide-icon> Simpan
+                        </button>
+                        <button (click)="handleCancel()" class="btn btn-secondary px-4 d-flex align-items-center gap-2">
+                            <lucide-icon [img]="X" size="18"></lucide-icon> Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+        <div class="col-12">
+            <div class="table-responsive bg-white rounded shadow-sm border">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th width="50" class="text-center">#</th>
+                            <th>Pertanyaan & Opsi</th>
+                            <th width="150">Bidang</th>
+                            <th width="80" class="text-center">Kunci</th>
+                            <th width="120" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (q of questions; track q.id; let i = $index) {
+                        <tr>
+                            <td class="text-center text-muted small">{{ i + 1 }}</td>
+                            <td>
+                                <div class="fw-bold text-dark mb-1">{{ q.pertanyaan }}</div>
+                                <div class="row g-0 small text-muted">
+                                    <div class="col-6">A: {{ q.opsi.A }}</div>
+                                    <div class="col-6">B: {{ q.opsi.B }}</div>
+                                    <div class="col-6">C: {{ q.opsi.C }}</div>
+                                    <div class="col-6">D: {{ q.opsi.D }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                    {{ getBidangName(q.bidangId) }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success rounded-pill px-3">{{ q.jawabanBenar }}</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center">
+                                    <button (click)="handleEdit(q)"
+                                        class="btn btn-sm text-primary p-2 border-0 bg-transparent">
+                                        <lucide-icon [img]="Edit2" size="18"></lucide-icon>
+                                    </button>
+                                    <button (click)="handleDelete(q.id)"
+                                        class="btn btn-sm text-danger p-2 border-0 bg-transparent">
+                                        <lucide-icon [img]="Trash2" size="18"></lucide-icon>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        } @empty {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted small">Belum ada soal tersedia.</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

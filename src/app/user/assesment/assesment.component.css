@@ -1,0 +1,40 @@
+.card {
+    transition: transform 0.2s ease;
+}
+
+.input-group:focus-within {
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.1);
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Menyamakan tinggi label agar kolom tetap sejajar meskipun teks berbeda panjang */
+.form-label {
+  min-height: 40px; 
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Custom styling untuk slider (glider) */
+.custom-slider::-webkit-slider-thumb {
+  background: #2563eb;
+}
+
+.custom-slider::-moz-range-thumb {
+  background: #2563eb;
+}
+
+.custom-slider {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 5px;
+}

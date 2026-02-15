@@ -1,0 +1,88 @@
+<div class="container-fluid p-0">
+    <div class="mb-4">
+        <h2 class="h4 fw-bold text-dark mb-1">Data Mahasiswa</h2>
+        <p class="text-muted small">Lihat data penilaian mahasiswa</p>
+    </div>
+
+    <div class="mb-4">
+        <div class="input-group shadow-sm">
+            <span class="input-group-text bg-white border-end-0">
+                <lucide-icon [img]="Search" size="18" class="text-muted"></lucide-icon>
+            </span>
+            <input type="text" [(ngModel)]="searchTerm" class="form-control border-start-0 ps-0"
+                placeholder="Cari berdasarkan nama atau NIM...">
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="px-4 py-3 text-secondary small text-uppercase">NIM</th>
+                        <th class="px-4 py-3 text-secondary small text-uppercase">Nama Mahasiswa</th>
+                        <th class="px-4 py-3 text-secondary small text-uppercase">Tanggal Penilaian</th>
+                        <th class="px-4 py-3 text-secondary small text-uppercase text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (student of filteredStudents; track student.id) {
+                    <tr>
+                        <td class="px-4 fw-bold text-dark">{{ student.nim }}</td>
+                        <td class="px-4 text-secondary">{{ student.studentName }}</td>
+                        <td class="px-4 text-secondary">{{ student.createdAt | date:'longDate':'':'id-ID' }}</td>
+                        <td class="px-4 text-center">
+                            <button (click)="selectedStudent = student"
+                                class="btn btn-link text-primary text-decoration-none d-flex align-items-center gap-1 mx-auto">
+                                <lucide-icon [img]="Eye" size="16"></lucide-icon> Detail
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (selectedStudent) {
+    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-bottom-0 p-4">
+                    <div>
+                        <h5 class="modal-title fw-bold">Detail Penilaian Mahasiswa</h5>
+                        <p class="text-muted small mb-0">{{ selectedStudent.studentName }} ({{ selectedStudent.nim }})
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close" (click)="selectedStudent = null"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <h6 class="fw-bold mb-3">Nilai Kriteria</h6>
+                    <div class="row g-2">
+                        @for (code of getObjectKeys(selectedStudent.values); track code) {
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3">
+                                <span class="text-secondary fw-medium">{{ code }}</span>
+                                <span class="fw-bold text-primary">{{ selectedStudent.values[code] }}</span>
+                            </div>
+                        </div>
+                        }
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-calendar-event me-1"></i>
+                            Tanggal Penilaian: {{ selectedStudent.createdAt | date:'fullDate':'':'id-ID' }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-top-0 p-4">
+                    <button type="button" class="btn btn-secondary px-4" (click)="selectedStudent = null">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

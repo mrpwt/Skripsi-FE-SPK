@@ -1,0 +1,121 @@
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h4 fw-bold mb-1">Manajemen Kriteria</h2>
+            <p class="text-muted small">Kelola kriteria penilaian untuk pemilihan bidang</p>
+        </div>
+        <button (click)="handleAdd()" class="btn btn-primary d-flex align-items-center gap-2">
+            <lucide-icon [img]="Plus" size="18"></lucide-icon> Tambah Kriteria
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="px-4 py-3 text-secondary small text-uppercase">Kode</th>
+                        <th class="px-4 py-3 text-secondary small text-uppercase">Nama Kriteria</th>
+                        <th class="px-4 py-3 text-secondary small text-uppercase">Bobot</th>
+                        <th class="px-4 py-3 text-secondary small text-uppercase">Tipe</th>
+                        <th class="px-4 py-3 text-secondary small text-uppercase text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (isAdding) {
+                    <tr class="table-primary">
+                        <td class="px-4"><input type="text" [(ngModel)]="formData.kode"
+                                class="form-control form-control-sm" placeholder="C.."></td>
+                        <td class="px-4"><input type="text" [(ngModel)]="formData.namaKriteria"
+                                class="form-control form-control-sm" placeholder="Nama.."></td>
+                        <td class="px-4"><input type="number" [(ngModel)]="formData.bobot" step="0.01"
+                                class="form-control form-control-sm"></td>
+                        <td class="px-4">
+                            <select [(ngModel)]="formData.tipe" class="form-select form-select-sm">
+                                <option [ngValue]="TipeKriteria.BENEFIT">Benefit</option>
+                                <option [ngValue]="TipeKriteria.COST">Cost</option>
+                            </select>
+                        </td>
+                        <td class="px-4 text-center">
+                            <div class="btn-group">
+                                <button (click)="handleSave()" class="btn btn-link text-success p-1"><lucide-icon
+                                        [img]="Save" size="18"></lucide-icon></button>
+                                <button (click)="handleCancel()" class="btn btn-link text-danger p-1"><lucide-icon
+                                        [img]="X" size="18"></lucide-icon></button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+
+                    @for (criterion of criteria; track criterion.id) {
+                    <tr [class.table-info]="editingId === criterion.id">
+
+                        @if (editingId === criterion.id) {
+                        <td class="px-4"><input type="text" [(ngModel)]="formData.kode"
+                                class="form-control form-control-sm"></td>
+                        <td class="px-4"><input type="text" [(ngModel)]="formData.namaKriteria"
+                                class="form-control form-control-sm"></td>
+                        <td class="px-4"><input type="number" [(ngModel)]="formData.bobot"
+                                class="form-control form-control-sm"></td>
+                        <td class="px-4">
+                            <select [(ngModel)]="formData.tipe" class="form-select form-select-sm">
+                                <option [ngValue]="TipeKriteria.BENEFIT">Benefit</option>
+                                <option [ngValue]="TipeKriteria.COST">Cost</option>
+                            </select>
+                        </td>
+                        <td class="px-4 text-center">
+                            <div class="btn-group">
+                                <button (click)="handleSave()" class="btn btn-link text-success p-1"><lucide-icon
+                                        [img]="Save" size="18"></lucide-icon></button>
+                                <button (click)="handleCancel()" class="btn btn-link text-danger p-1"><lucide-icon
+                                        [img]="X" size="18"></lucide-icon></button>
+                            </div>
+                        </td>
+
+                        } @else {
+                        <td class="px-4 fw-bold text-dark">{{ criterion.kode }}</td>
+                        <td class="px-4 text-secondary">{{ criterion.namaKriteria }}</td>
+                        <td class="px-4 text-secondary">{{ criterion.bobot | number:'1.2-2' }}</td>
+
+                        <td class="px-4">
+                            <span [class]="criterion.tipe === TipeKriteria.BENEFIT 
+                                       ? 'badge bg-success-subtle text-success border border-success' 
+                                       : 'badge bg-warning-subtle text-warning border border-warning'">
+                                {{ criterion.tipe === TipeKriteria.BENEFIT ? 'Benefit' : 'Cost' }}
+                            </span>
+                        </td>
+
+                        <td class="px-4 text-center">
+                            <div class="btn-group">
+                                <button (click)="handleEdit(criterion)" class="btn btn-link text-primary p-1">
+                                    <lucide-icon [img]="Edit2" size="18"></lucide-icon>
+                                </button>
+                                <button (click)="handleDelete(criterion.id!)" class="btn btn-link text-danger p-1">
+                                    <lucide-icon [img]="Trash2" size="18"></lucide-icon>
+                                </button>
+                            </div>
+                        </td>
+                        }
+                    </tr>
+                    }
+                </tbody>
+
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="2" class="px-4 py-3 fw-bold">Total Bobot</td>
+                        <td class="px-4 py-3">
+                            <span
+                                [class]="(totalWeight | number:'1.2-2') === '1.00' ? 'text-success fw-bold' : 'text-danger fw-bold'">
+                                {{ totalWeight | number:'1.2-2' }}
+                            </span>
+                            @if ((totalWeight | number:'1.2-2') !== '1.00') {
+                            <small class="text-danger ms-2">(Wajib = 1.00)</small>
+                            }
+                        </td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

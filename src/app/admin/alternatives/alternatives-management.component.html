@@ -1,0 +1,115 @@
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h4 fw-bold mb-1">Manajemen Bidang</h2>
+            <p class="text-muted small mb-0">Kelola bidang/konsentrasi yang tersedia</p>
+        </div>
+        <button (click)="handleAdd()" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+            [disabled]="isAdding">
+            <lucide-icon [img]="Plus" size="18"></lucide-icon>
+            Tambah Bidang
+        </button>
+    </div>
+
+    <div class="row g-4">
+        @if (isAdding) {
+        <div class="col-12">
+            <div class="card border-primary bg-light shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4 text-primary fw-bold">Tambah Bidang Baru</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Kode Bidang</label>
+                            <input type="text" [(ngModel)]="formData.kode" class="form-control"
+                                placeholder="Contoh: RPL, AI, CYBER">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Nama Bidang</label>
+                            <input type="text" [(ngModel)]="formData.namaBidang" class="form-control"
+                                placeholder="Nama lengkap konsentrasi">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary">Deskripsi</label>
+                            <textarea [(ngModel)]="formData.deskripsi" class="form-control" rows="3"
+                                placeholder="Jelaskan singkat mengenai bidang ini..."></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button (click)="handleSave()" class="btn btn-success d-flex align-items-center gap-2 px-4">
+                            <lucide-icon [img]="Save" size="18"></lucide-icon> Simpan
+                        </button>
+                        <button (click)="handleCancel()" class="btn btn-secondary d-flex align-items-center gap-2 px-4">
+                            <lucide-icon [img]="X" size="18"></lucide-icon> Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+        @for (alternative of alternatives; track alternative.id) {
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" [class.border]="editingId === alternative.id"
+                [class.border-primary]="editingId === alternative.id">
+                <div class="card-body p-4">
+
+                    @if (editingId === alternative.id) {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Kode Bidang</label>
+                            <input type="text" [(ngModel)]="formData.kode" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Nama Bidang</label>
+                            <input type="text" [(ngModel)]="formData.namaBidang" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-secondary">Deskripsi</label>
+                            <textarea [(ngModel)]="formData.deskripsi" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button (click)="handleSave()" class="btn btn-success d-flex align-items-center gap-2">
+                            <lucide-icon [img]="Save" size="18"></lucide-icon> Update Data
+                        </button>
+                        <button (click)="handleCancel()" class="btn btn-secondary d-flex align-items-center gap-2">
+                            <lucide-icon [img]="X" size="18"></lucide-icon> Batal
+                        </button>
+                    </div>
+
+                    } @else {
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <span
+                                    class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 fw-medium">
+                                    {{ alternative.kode }}
+                                </span>
+                                <h3 class="h5 fw-bold mb-0 text-dark">{{ alternative.namaBidang }}</h3>
+                            </div>
+                            <p class="text-secondary mb-0">{{ alternative.deskripsi || 'Tidak ada deskripsi.' }}</p>
+                        </div>
+
+                        <div class="d-flex gap-1 ms-3">
+                            <button (click)="handleEdit(alternative)"
+                                class="btn btn-outline-primary btn-sm border-0 p-2 rounded-circle" title="Edit">
+                                <lucide-icon [img]="Edit2" size="18"></lucide-icon>
+                            </button>
+                            <button (click)="handleDelete(alternative.id)"
+                                class="btn btn-outline-danger btn-sm border-0 p-2 rounded-circle" title="Hapus">
+                                <lucide-icon [img]="Trash2" size="18"></lucide-icon>
+                            </button>
+                        </div>
+                    </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+        } @empty {
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">Belum ada data bidang. Silakan tambah data baru.</p>
+        </div>
+        }
+    </div>
+</div>

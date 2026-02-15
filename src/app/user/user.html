@@ -1,0 +1,85 @@
+<div class="min-vh-100 bg-light">
+    <nav class="navbar navbar-dark bg-primary shadow-sm mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">Dashboard Mahasiswa</span>
+            <div class="d-flex align-items-center text-white">
+                <div class="me-3 text-end" *ngIf="user">
+                    <div class="small fw-bold">{{ mahasiswa.nama }}</div>
+                    <div class="small opacity-75">NIM: {{ mahasiswa.nim }}</div>
+                </div>
+                <button (click)="logout()" class="btn btn-outline-light btn-sm">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <ul class="nav nav-tabs mb-4 bg-white rounded shadow-sm px-3 pt-2">
+            <li class="nav-item">
+                <button class="nav-link" [class.active]="activeTab === 'test'" (click)="changeTab('test')">
+                    Tes Kemampuan
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" [class.active]="activeTab === 'assessment'" [class.disabled]="!testCompleted"
+                    [style.opacity]="testCompleted ? '1' : '0.5'" (click)="changeTab('assessment')">
+                    <span *ngIf="!testCompleted">🔒 </span>Penilaian
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" [class.active]="activeTab === 'results'" [class.disabled]="!hasSubmitted"
+                    [style.opacity]="hasSubmitted ? '1' : '0.5'" (click)="changeTab('results')">
+                    <span *ngIf="!hasSubmitted">🔒 </span>Hasil Rekomendasi
+                </button>
+            </li>
+        </ul>
+
+        <div *ngIf="!hasStarted" class="card shadow-sm p-4 text-center mb-4">
+
+            <!-- JIKA BELUM PERNAH TES -->
+            <div *ngIf="!sudahPernahTes">
+                <h2>👋 Selamat Datang, {{ mahasiswa?.nama }}</h2>
+                <p>
+                    Silakan mulai tes untuk mendapatkan rekomendasi peminatan Anda.
+                </p>
+                <button class="btn btn-primary px-4" (click)="startTest()">
+                    Mulai Tes 🚀
+                </button>
+            </div>
+
+
+            <!-- JIKA SUDAH PERNAH TES -->
+            <div *ngIf="sudahPernahTes">
+
+                <h2>👋 Selamat Datang, {{ mahasiswa?.nama }}</h2>
+
+                <p>
+                    Anda sudah pernah mengikuti tes dengan hasil rekomendasi terbaik Bidang {{ nameBidang.namaBidang }}.
+                </p>
+
+                <p>
+                    Apakah Anda ingin melakukan tes ulang?
+                </p>
+
+                <button class="btn btn-primary" (click)="ulangTest()">
+                    🔄 Test Ulang
+                </button>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- CONTENT -->
+        <div [ngSwitch]="activeTab" *ngIf="hasStarted">
+            <app-test *ngSwitchCase="'test'" (complete)="handleTestComplete($event)"></app-test>
+
+            <app-assesment *ngSwitchCase="'assessment'" [testResults]="testResults" [testCompleted]="testCompleted"
+                (submitForm)="handleAssessmentSubmit($event)">
+            </app-assesment>
+
+            <app-recommendation-results *ngSwitchCase="'results'" [results]="hasilRekomendasi">
+            </app-recommendation-results>
+        </div>
+    </div>
+</div>
