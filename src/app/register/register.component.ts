@@ -57,7 +57,7 @@ export class RegisterComponent {
     try {
 
       await this.authService.register({
-        username: this.username,
+        username: this.nim,
         password: this.password,
         email: this.email,
         nim: this.nim,
