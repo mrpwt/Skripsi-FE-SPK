@@ -35,7 +35,7 @@ export class RegisterComponent {
   async handleRegister() {
 
     // VALIDASI
-    if (!this.username || !this.password || !this.email || !this.nim || !this.namaMahasiswa) {
+    if (!this.password || !this.email || !this.nim || !this.namaMahasiswa) {
       this.error = 'Semua field wajib diisi';
       return;
     }
