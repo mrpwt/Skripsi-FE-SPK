@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
   // Base URL Spring Boot Anda
-  apiUrl: 'https://skripsi-be-spk-production.up.railway.app/api' 
+  apiUrl: 'https://spk-be-skripsi.osc-fr1.scalingo.io/api' 
 };
