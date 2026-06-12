@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs'; // 1. Wajib import ini
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { firstValueFrom, lastValueFrom } from 'rxjs'; // 1. Wajib import ini
 import { environment } from '../environments/environment';
 import { SoalTestDto } from '../model'; // Pastikan path import model benar
 
@@ -10,12 +10,28 @@ import { SoalTestDto } from '../model'; // Pastikan path import model benar
 export class SoalTestService {
   private apiUrl = `${environment.apiUrl}/soal-tes`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // 1. GET ALL
   // Mengembalikan Promise array
   async getAll(): Promise<SoalTestDto[]> {
     const request$ = this.http.get<SoalTestDto[]>(this.apiUrl);
+    return await lastValueFrom(request$);
+  }
+
+  async getAllAdmin(keyword: string = '', bidangId: number | null = null, page: number = 0, size: number = 10): Promise<any> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (keyword) {
+      params = params.set('keyword', keyword);
+    }
+    if (bidangId !== null && bidangId !== 0) {
+      params = params.set('bidangId', bidangId.toString());
+    }
+
+    const request$ = this.http.get<any>(`${this.apiUrl}/admin`, { params });
     return await lastValueFrom(request$);
   }
 
@@ -40,4 +56,17 @@ export class SoalTestService {
     const request$ = this.http.delete(`${this.apiUrl}/${id}`, { responseType: 'text' });
     return await lastValueFrom(request$);
   }
+
+  getConfigJumlahSoal(): Promise<number> {
+    return firstValueFrom(this.http.get<number>(`${this.apiUrl}/config`));
+  }
+
+  updateConfigJumlahSoal(jumlahSoal: number): Promise<void> {
+    return firstValueFrom(this.http.post<void>(`${this.apiUrl}/config?jumlahSoal=${jumlahSoal}`, {}));
+  }
+
+  getSoalUjianUser(): Promise<SoalTestDto[]> {
+    return firstValueFrom(this.http.get<SoalTestDto[]>(`${this.apiUrl}/generate`));
+  }
+
 }

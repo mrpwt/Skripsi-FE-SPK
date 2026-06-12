@@ -1,4 +1,4 @@
-import { TestQuestion } from '../models/test';
+import { TestQuestion } from '../model/test';
 
 export const defaultTestQuestions: TestQuestion[] = [
   // RPL Questions

@@ -10,7 +10,26 @@
         </button>
     </div>
 
-    <div class="row g-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-primary bg-primary-subtle shadow-sm">
+                <div class="card-body p-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h5 class="fw-bold text-primary mb-1">⚙️ Konfigurasi Live Kebutuhan Soal (User)</h5>
+                        <p class="text-muted small mb-0">Tentukan jumlah total soal ujian user. Aturan validasi mendeteksi ketersediaan bank soal minimal wajib 1.5x lipat dari kuota kebutuhan.</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small fw-bold text-nowrap">Total Soal Ujian:</label>
+                        <input type="number" [(ngModel)]="totalSoalUjian" class="form-control form-control-sm text-center fw-bold" style="width: 80px;" min="3">
+                        <button (click)="saveUjianConfig()" class="btn btn-sm btn-primary fw-bold px-3">
+                            Simpan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 mb-4">
         @if (isAdding || editingId) {
         <div class="col-12">
             <div class="card border-primary bg-light shadow-sm">
@@ -85,6 +104,34 @@
         }
 
         <div class="col-12">
+            <div class="card border-0 shadow-sm bg-white mb-2">
+                <div class="card-body p-3">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-12 col-md-6">
+                            <div class="input-group input-group-sm border rounded">
+                                <span class="input-group-text bg-transparent border-0 text-muted">
+                                    <lucide-icon [img]="Search" size="16"></lucide-icon>
+                                </span>
+                                <input type="text" [(ngModel)]="searchKeyword" (ngModelChange)="onFilterChange()"
+                                    class="form-control border-0 bg-transparent ps-0"
+                                    placeholder="Cari pertanyaan soal test...">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 ms-auto">
+                            <select [(ngModel)]="selectedBidangFilter" (change)="onFilterChange()"
+                                class="form-select form-select-sm">
+                                <option [ngValue]="null">-- Semua Bidang --</option>
+                                @for (alt of alternatives; track alt.id) {
+                                <option [value]="alt.id">{{ alt.namaBidang }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
             <div class="table-responsive bg-white rounded shadow-sm border">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light text-secondary">
@@ -99,7 +146,7 @@
                     <tbody>
                         @for (q of questions; track q.id; let i = $index) {
                         <tr>
-                            <td class="text-center text-muted small">{{ i + 1 }}</td>
+                            <td class="text-center text-muted small">{{ (currentPage * pageSize) + i + 1 }}</td>
                             <td>
                                 <div class="fw-bold text-dark mb-1">{{ q.pertanyaan }}</div>
                                 <div class="row g-0 small text-muted">
@@ -110,8 +157,7 @@
                                 </div>
                             </td>
                             <td>
-                                <span
-                                    class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
                                     {{ getBidangName(q.bidangId) }}
                                 </span>
                             </td>
@@ -120,12 +166,10 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center">
-                                    <button (click)="handleEdit(q)"
-                                        class="btn btn-sm text-primary p-2 border-0 bg-transparent">
+                                    <button (click)="handleEdit(q)" class="btn btn-sm text-primary p-2 border-0 bg-transparent">
                                         <lucide-icon [img]="Edit2" size="18"></lucide-icon>
                                     </button>
-                                    <button (click)="handleDelete(q.id)"
-                                        class="btn btn-sm text-danger p-2 border-0 bg-transparent">
+                                    <button (click)="handleDelete(q.id)" class="btn btn-sm text-danger p-2 border-0 bg-transparent">
                                         <lucide-icon [img]="Trash2" size="18"></lucide-icon>
                                     </button>
                                 </div>
@@ -133,12 +177,33 @@
                         </tr>
                         } @empty {
                         <tr>
-                            <td colspan="5" class="text-center py-5 text-muted small">Belum ada soal tersedia.</td>
+                            <td colspan="5" class="text-center py-5 text-muted small">Tidak ditemukan data soal yang sesuai.</td>
                         </tr>
                         }
                     </tbody>
                 </table>
             </div>
+
+            @if (totalPages > 1) {
+            <div class="d-flex justify-content-between align-items-center mt-3 bg-white p-2 rounded border shadow-sm">
+                <div class="text-muted small ps-2">
+                    Menampilkan <b>{{ questions.length }}</b> dari total <b>{{ totalElements }}</b> soal
+                </div>
+                <nav aria-label="Page navigation example" class="me-2">
+                    <ul class="pagination pagination-sm mb-0 cursor-pointer">
+                        <li class="page-item" [class.disabled]="currentPage === 0">
+                            <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link text-dark fw-bold">Halaman {{ currentPage + 1 }} dari {{ totalPages }}</span>
+                        </li>
+                        <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                            <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            }
         </div>
     </div>
 </div>

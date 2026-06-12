@@ -5,17 +5,19 @@ import { AuthService } from '../../services/auth.service'; // Import AuthService
 import { User } from '../../model/User'; // Sesuaikan path import
 import { 
   LucideAngularModule, 
-  Settings, ClipboardList, FileQuestion, Users, BarChart3, LogOut 
+  Settings, ClipboardList, FileQuestion, Users, BarChart3, LogOut, BookOpen 
 } from 'lucide-angular';
 
 // Import komponen child (Biarkan seperti semula)
 import { CriteriaManagementComponent } from './criteria/criteria-management.component';
 import { AlternativesManagementComponent } from './alternatives/alternatives-management.component';
 import { AnalyticsViewComponent } from './analytics/analytics-view.component'; 
-import { StudentsComponent } from './students/students.component';
+// import { StudentsComponent } from './students/students.component';
 import { TestManagementComponent } from './test-management/test-management.component';
+import { CoursesManagementComponent } from './courses/courses-management.component';
 
-type AdminTab = 'criteria' | 'alternatives' | 'test' | 'students' | 'analytics';
+
+type AdminTab = 'criteria' | 'alternatives' | 'test' | 'students' | 'analytics' | 'courses';
 
 @Component({
   selector: 'app-admin',
@@ -26,8 +28,9 @@ type AdminTab = 'criteria' | 'alternatives' | 'test' | 'students' | 'analytics';
     CriteriaManagementComponent,
     AlternativesManagementComponent,
     AnalyticsViewComponent,
-    StudentsComponent,
-    TestManagementComponent
+    // StudentsComponent,
+    TestManagementComponent,
+    CoursesManagementComponent
   ],
   templateUrl: './admin.html', 
   styleUrl: './admin.css' 
@@ -47,7 +50,8 @@ export class AdminComponent {
     { id: 'criteria' as AdminTab, label: 'Kriteria', icon: Settings },
     { id: 'alternatives' as AdminTab, label: 'Bidang', icon: ClipboardList },
     { id: 'test' as AdminTab, label: 'Tes Kemampuan', icon: FileQuestion },
-    { id: 'students' as AdminTab, label: 'Data Mahasiswa', icon: Users },
+    { id: 'courses' as AdminTab, label: 'Mata Kuliah', icon: BookOpen },
+    // { id: 'students' as AdminTab, label: 'Data Mahasiswa', icon: Users },
     { id: 'analytics' as AdminTab, label: 'Analitik', icon: BarChart3 }
   ];
 

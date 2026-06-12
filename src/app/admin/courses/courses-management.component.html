@@ -1,0 +1,107 @@
+<div class="container-fluid py-4" *ngIf="!isLoading">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">Manajemen Mata Kuliah Pendukung</h3>
+      <p class="text-secondary small mb-0">Kelola mata kuliah penentu untuk pembobotan Kriteria Akademik (C1) per bidang</p>
+    </div>
+    <button class="btn btn-primary px-4 py-2 shadow-sm d-flex align-items-center gap-2 fw-bold" (click)="openAddModal()">
+      <lucide-icon [img]="PlusIcon" size="18"></lucide-icon> Tambah Mata Kuliah
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light text-dark fw-bold" style="font-size: 0.9rem;">
+          <tr>
+            <th class="ps-4 py-3" style="width: 80px;">#</th>
+            <th class="py-3">Nama Mata Kuliah</th>
+            <th class="py-3" style="width: 300px;">Bidang Penempatan</th>
+            <th class="text-center py-3" style="width: 150px;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody style="font-size: 0.9rem;">
+          @for (course of courses; track course.id; let i = $index) {
+          <tr>
+            <td class="ps-4 fw-semibold text-secondary">{{ i + 1 }}</td>
+            <td class="fw-bold text-dark">{{ course.namaMataKuliah }}</td>
+            <td>
+              <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold" style="font-size: 0.8rem;">
+                {{ getBidangName(course.bidangId) }}
+              </span>
+            </td>
+            <td class="text-center">
+              <div class="d-flex justify-content-center gap-2">
+                <button class="btn btn-sm btn-outline-primary border-0 rounded-3 p-2" (click)="openEditModal(course)" title="Edit">
+                  <lucide-icon [img]="PencilIcon" size="16"></lucide-icon>
+                </button>
+                <button class="btn btn-sm btn-outline-danger border-0 rounded-3 p-2" (click)="onDelete(course.id!)" title="Hapus">
+                  <lucide-icon [img]="TrashIcon" size="16"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="4" class="text-center py-5 text-muted">
+              <p class="mb-0">Belum ada data mata kuliah pendukung.</p>
+              <small>Klik tombol Tambah Mata Kuliah untuk mengisinya.</small>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status"></div>
+  <p class="text-muted mt-2">Memuat data mata kuliah...</p>
+</div>
+
+@if (isModalOpen) {
+<div class="modal fade show d-block" style="background: rgba(0,0,0,0.5); z-index: 1050;" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4">
+      <div class="modal-header bg-primary text-white py-3 px-4">
+        <h5 class="modal-title fw-bold fs-6 text-uppercase tracking-wider">{{ modalTitle }}</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="isModalOpen = false"></button>
+      </div>
+      
+      <form (ngSubmit)="onSubmit()">
+        <div class="modal-body p-4">
+          
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-secondary">Nama Mata Kuliah</label>
+            <input type="text" [(ngModel)]="formCourse.namaMataKuliah" name="namaMataKuliah" 
+                   class="form-control" placeholder="Contoh: Basis Data Lanjut" required autocomplete="off">
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small fw-bold text-secondary">Ditujukan Untuk Bidang</label>
+            <select [(ngModel)]="formCourse.bidangId" name="bidangId" class="form-select fw-semibold" required>
+              @for (alt of alternatives; track alt.id) {
+                <option [value]="alt.id">{{ alt.namaBidang }}</option>
+              }
+            </select>
+            <div class="form-text text-muted" style="font-size: 0.75rem;">
+              Mata kuliah ini akan otomatis muncul pada penilaian Kriteria Akademik (C1) mahasiswa di rumpun bidang pilihan.
+            </div>
+          </div>
+
+        </div>
+        
+        <div class="modal-footer bg-light py-3 px-4">
+          <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3 d-flex align-items-center gap-1" (click)="isModalOpen = false">
+            <lucide-icon [img]="XIcon" size="14"></lucide-icon> Batal
+          </button>
+          <button type="submit" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold d-flex align-items-center gap-1 shadow-sm">
+            <lucide-icon [img]="SaveIcon" size="14"></lucide-icon> Simpan Data
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+}

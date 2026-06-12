@@ -3,7 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, Eye, X } from 'lucide-angular';
 import { mockStudentAssessments } from '../../../mock-data/mock-data';
-import { StudentAssessment } from '../../../models/saw';
+import { StudentAssessment } from '../../../model/saw';
 
 @Component({
   selector: 'app-students',

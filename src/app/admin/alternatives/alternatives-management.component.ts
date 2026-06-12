@@ -5,6 +5,7 @@ import { LucideAngularModule, Plus, Edit2, Trash2, Save, X } from 'lucide-angula
 import { BidangService } from '../../../services/bidang.service';
 import { BidangDto } from '../../../model';
 import { ChangeDetectorRef } from '@angular/core'
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-alternatives-management',
@@ -30,7 +31,7 @@ export class AlternativesManagementComponent implements OnInit {
   readonly Save = Save;
   readonly X = X;
 
-  constructor(private bidangService: BidangService, private cdr: ChangeDetectorRef) { }
+  constructor(private bidangService: BidangService, private cdr: ChangeDetectorRef, private toastr: ToastrService) { }
 
   // alternatives-management.component.ts
   ngOnInit() {
@@ -69,7 +70,7 @@ export class AlternativesManagementComponent implements OnInit {
 
   async handleSave() {
     if (!this.formData.kode || !this.formData.namaBidang) {
-      alert('Kode dan Nama wajib diisi');
+      this.toastr.warning('Kode dan Nama wajib diisi', 'warning');
       return;
     }
 
@@ -79,7 +80,7 @@ export class AlternativesManagementComponent implements OnInit {
       await this.loadData();
     } catch (error) {
       console.error('Error saving bidang:', error);
-      alert('Gagal menyimpan data');
+      this.toastr.error('Gagal menyimpan data', 'Error');
     }
   }
 
@@ -91,6 +92,7 @@ export class AlternativesManagementComponent implements OnInit {
         await this.loadData();
       } catch (error) {
         console.error('Error deleting bidang:', error);
+        this.toastr.error('Gagal menghapus data', 'Error');
       }
     }
   }

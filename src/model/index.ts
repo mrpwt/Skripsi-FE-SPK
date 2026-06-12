@@ -5,5 +5,7 @@ export * from './KriteriaDto';
 export * from './SoalTestDto';
 export * from './PenilaianRequest';
 export * from './HasilRekomendasiDto';
+export * from './AnalitikResponse';
 export * from './User';
+export * from './MataKuliahDto';
 export * from './RegisterRequest';

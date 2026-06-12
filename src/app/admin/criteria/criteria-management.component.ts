@@ -83,7 +83,7 @@ export class CriteriaManagementComponent implements OnInit {
 
   async handleSave() {
     if (!this.formData.kode || !this.formData.namaKriteria) {
-      alert('Lengkapi data');
+      this.toastr.warning('Lengkapi data', 'warning');
       return;
     }
     try {

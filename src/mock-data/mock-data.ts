@@ -1,4 +1,4 @@
-import { Criterion, Alternative, StudentAssessment } from '../models/saw';
+import { Criterion, Alternative, StudentAssessment } from '../model/saw';
 
 export const defaultCriteria: Criterion[] = [
   {

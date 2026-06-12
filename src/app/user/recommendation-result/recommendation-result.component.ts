@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HasilRekomendasiDto, BidangDto } from '../../../model';
 import { BidangService } from '../../../services/bidang.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { SpkService } from '../../../services/spk.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-recommendation-results',
@@ -17,7 +19,7 @@ export class RecommendationResultComponent {
 
   bidangMap: { [key: number]: string } = {};
 
-  constructor(private bidangService: BidangService, private cdr: ChangeDetectorRef) {}
+  constructor(private bidangService: BidangService, private spkService: SpkService, private cdr: ChangeDetectorRef, private toastr: ToastrService) { }
 
   @Input()
   set results(value: HasilRekomendasiDto[]) {
@@ -70,5 +72,29 @@ export class RecommendationResultComponent {
     if (maxScore === 0) return 0;
 
     return (score / maxScore) * 100;
+  }
+
+  cetakRaportAktif(nim: string): void {
+    if (!nim) {
+      this.toastr.warning('NIM mahasiswa tidak ditemukan.', 'Warning');
+      return;
+    }
+
+    this.spkService.downloadRaportPdfByNim(nim).subscribe({
+      next: (response: Blob) => {
+        const blobUrl = window.URL.createObjectURL(response);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `Raport_SPK_${nim}.pdf`;
+        link.click();
+
+        window.URL.revokeObjectURL(blobUrl);
+      },
+      error: (err) => {
+        console.error('Gagal mengunduh PDF:', err);
+        this.toastr.error('Gagal mencetak raport PDF. Pastikan kalkulasi telah tersimpan di database.', 'Error');
+      }
+    });
   }
 }

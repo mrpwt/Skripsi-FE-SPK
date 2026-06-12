@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router'; // Import Router
 import { AuthService } from '../../services/auth.service'; // Import AuthService
 import { User } from '../../model/User';
-import { TestResult } from '../../models/test';
+import { TestResult } from '../../model/test';
 import { ChangeDetectorRef } from '@angular/core';
 
 // Import Child Components
@@ -12,6 +12,8 @@ import { AssesmentComponent } from './assesment/assesment.component';
 import { RecommendationResultComponent } from './recommendation-result/recommendation-result.component';
 import { SpkService } from '../../services/spk.service';
 import { BidangService } from '../../services/bidang.service';
+import { BidangDto } from '../../model';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-user',
@@ -42,6 +44,8 @@ export class UserComponent {
   testResults: TestResult[] = [];
   hasilRekomendasi: any[] = [];
   nameBidang: any;
+  listHistory: any[] = [];
+  alternatives: BidangDto[] = [];
 
   // 2. Inject AuthService dan Router
   constructor(
@@ -49,14 +53,51 @@ export class UserComponent {
     private spkService: SpkService,
     private bidangService: BidangService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService
   ) {
     // 3. Ambil data user langsung dari Service
     this.user = this.authService.currentUserValue;
   }
   async ngOnInit() {
     await this.loadMahasiswa();
+    await this.loadMasterBidang();
     await this.cekHasilRekomendasi();
+    await this.loadHistoryPenilaian();
+  }
+
+  async loadMasterBidang() {
+    try {
+      this.alternatives = await this.bidangService.getAll();
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('Gagal memuat master data bidang:', err);
+    }
+  }
+
+  getBidangName(id: any): string {
+    if (!id) return 'N/A';
+    const numericId = Number(id);
+    const bidang = this.alternatives.find(a => Number(a.id) === numericId);
+    return bidang ? (bidang.namaBidang || 'Tanpa Nama') : 'Bidang Tidak Diketahui';
+  }
+
+  async loadHistoryPenilaian() {
+    if (!this.mahasiswa?.nim) return;
+    try {
+      const res = await this.spkService.getHistoryPenilaian(this.mahasiswa.nim);
+      // Lakukan mapping parsing JSON data string detail_skor agar dibaca sebagai object array di template html
+      this.listHistory = res.map(h => {
+        return {
+          ...h,
+          detailSkorParsed: JSON.parse(h.detailSkor),
+          isExpanded: false // State helper penunjuk fitur expand/collapse card
+        };
+      });
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('Gagal memuat histori penilaian:', err);
+    }
   }
 
   handleTestComplete(results: TestResult[]) {
@@ -74,17 +115,17 @@ export class UserComponent {
       this.activeTab = targetTab;
       return;
     }
-    
+
     // Jika mencoba ke tab assessment atau results tapi belum tes
     if ((targetTab === 'assessment' || targetTab === 'results') && !this.testCompleted) {
-      alert('Anda wajib menyelesaikan "Tes Kemampuan" terlebih dahulu!');
+      this.toastr.warning('Anda wajib menyelesaikan "Tes Kemampuan" terlebih dahulu!', 'Warning');
       this.activeTab = 'test';
       return;
     }
 
     // Jika mencoba ke tab results tapi belum mengisi form penilaian
     if (targetTab === 'results' && !this.hasSubmitted) {
-      alert('Anda wajib mengisi "Formulir Penilaian" terlebih dahulu!');
+      this.toastr.warning('Anda wajib mengisi "Formulir Penilaian" terlebih dahulu!', 'Warning');
       this.activeTab = 'assessment';
       return;
     }
@@ -92,13 +133,18 @@ export class UserComponent {
     this.activeTab = targetTab;
   }
 
-  handleAssessmentSubmit(hasil: any[]) {
+  async handleAssessmentSubmit(hasil: any[]) {
     this.hasSubmitted = true;
     this.hasSubmitted = true;
     this.hasSubmitted = true;
 
     this.hasilRekomendasi = hasil;
     this.activeTab = 'results';
+    await this.loadHistoryPenilaian();
+  }
+
+  toggleExpand(item: any) {
+    item.isExpanded = !item.isExpanded;
   }
 
   startTest() {
@@ -119,7 +165,7 @@ export class UserComponent {
   async cekHasilRekomendasi() {
     var nim = this.mahasiswa.nim;
     try {
-      const hasil = await this.spkService.hitungRekomendasi(nim);
+      const hasil = await this.spkService.getHasilAktif(nim);
 
       // Jika sudah ada hasil
       if (hasil && hasil.length > 0) {
@@ -167,5 +213,48 @@ export class UserComponent {
 
     // Redirect biasanya sudah dihandle di service, 
     // tapi jika tidak, bisa tambahkan: this.router.navigate(['/login']);
+  }
+
+  getKriteriaKeys(normalizedValues: any): string[] {
+    if (!normalizedValues) return [];
+    return Object.keys(normalizedValues).sort();
+  }
+
+  cetakPdf(historyId: number, nim: string): void {
+    this.spkService.downloadRaportPdf(historyId).subscribe({
+      next: (response: Blob) => {
+        // Membuat URL objek dari blob PDF yang diterima
+        const blobUrl = window.URL.createObjectURL(response);
+
+        // Membuat elemen jangkar (<a>) tak terlihat di memori browser
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `Raport_SPK_${nim}.pdf`; // Nama file saat diunduh
+
+        // Simulasikan klik untuk memulai unduhan otomatis
+        link.click();
+
+        // Bersihkan memori blob setelah selesai digunakan
+        window.URL.revokeObjectURL(blobUrl);
+      },
+      error: (err) => {
+        console.error('Gagal mengunduh PDF:', err);
+        this.toastr.error('Gagal mencetak raport PDF. Silakan coba lagi nanti.', 'Error');
+      }
+    });
+  }
+
+  // Fungsi pembantu Anda yang sudah ada sebelumnya
+  getBidangNamePdf(id: number): string {
+    const nama: { [key: number]: string } = {
+      1: 'Rekayasa Perangkat Lunak',
+      2: 'Artificial Intelligence',
+      3: 'Jaringan Komputer'
+    };
+    return nama[id] || 'Bidang';
+  }
+
+  getKriteriaKeysPdf(obj: any): string[] {
+    return obj ? Object.keys(obj).sort() : [];
   }
 }

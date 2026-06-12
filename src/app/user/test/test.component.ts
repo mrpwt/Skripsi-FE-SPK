@@ -37,36 +37,16 @@ export class TestComponent implements OnInit {
 
   async ngOnInit() {
     try {
+      // Ambil data alternatif bidang dan panggil generate soal langsung dari BE
       const [soalRes, bidangRes] = await Promise.all([
-        this.soalService.getAll(),
+        this.soalService.getSoalUjianUser(), // <-- Memanggil endpoint /generate baru
         this.bidangService.getAll()
       ]);
 
       this.alternatives = bidangRes;
 
-      // 🔹 1. Kelompokkan soal per bidang
-      const grouped: { [key: number]: SoalTestDto[] } = {};
-
-      soalRes.forEach(q => {
-        const bidangId = (q as any).bidang_id || q.bidangId;
-        if (!grouped[bidangId]) {
-          grouped[bidangId] = [];
-        }
-        grouped[bidangId].push(q);
-      });
-
-      // 🔹 2. Ambil max 5 soal random per bidang
-      let finalQuestions: SoalTestDto[] = [];
-
-      Object.keys(grouped).forEach(key => {
-        const bidangQuestions = grouped[Number(key)];
-        const shuffled = this.shuffleArray(bidangQuestions);
-        const limited = shuffled.slice(0, 5); // max 5
-        finalQuestions = [...finalQuestions, ...limited];
-      });
-
-      // 🔹 3. Optional: random lagi biar tidak urut per bidang
-      this.questions = this.shuffleArray(finalQuestions);
+      // Mengisi array questions langsung dari repositori BE (Sudah terbagi rata & teracak otomatis di DB)
+      this.questions = soalRes || [];
 
       this.isLoading = false;
       this.cdr.detectChanges();
@@ -112,7 +92,6 @@ export class TestComponent implements OnInit {
     return this.alternatives.find(a => a.id === id)?.namaBidang || 'Umum';
   }
 
-  // Di dalam test.component.ts
 
   getPointFromStorage(bidangId: number): number {
     const savedPoints = localStorage.getItem('bidang_points');
@@ -125,18 +104,18 @@ export class TestComponent implements OnInit {
 
   finishTest() {
     const results = this.alternatives.map(alt => {
-      // 1. Ambil semua soal untuk bidang ini
+      // 1. Ambil semua soal untuk bidang ini yang diujikan
       const questionsInAlt = this.questions.filter(q => {
-        const bId = (q as any).bidang_id || q.bidangId;
+        const bId = q.bidangId || (q as any).bidang_id;
         return Number(bId) === Number(alt.id);
       });
 
-      // 2. Hitung jawaban yang benar
+      // 2. Hitung jawaban user yang benar pada bidang ini
       const correctAnswers = this.answers.filter(a =>
         Number(a.bidangId) === Number(alt.id) && a.isCorrect
       ).length;
 
-      // 3. Rumus: (Benar / Total Soal) * 100
+      // 3. Kalkulasi Persentase: (Benar / Total Soal Bidang Tersebut) * 100
       const totalSoal = questionsInAlt.length;
       const score = totalSoal > 0 ? Math.round((correctAnswers / totalSoal) * 100) : 0;
 
@@ -146,14 +125,15 @@ export class TestComponent implements OnInit {
       };
     });
 
+    // Lempar output hasil kalkulasi nilai C3 (Bakat) langsung ke komponen parent assessment
     this.complete.emit(results);
   }
 
-  private shuffleArray<T>(array: T[]): T[] {
-    return array
-      .map(value => ({ value, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
-  }
+  // private shuffleArray<T>(array: T[]): T[] {
+  //   return array
+  //     .map(value => ({ value, sort: Math.random() }))
+  //     .sort((a, b) => a.sort - b.sort)
+  //     .map(({ value }) => value);
+  // }
 
 }

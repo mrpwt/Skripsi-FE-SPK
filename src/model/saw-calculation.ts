@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Criterion, Alternative, SAWResult } from '../models/saw';
+import { Criterion, Alternative, SAWResult } from './saw';
 
 @Injectable({
   providedIn: 'root'

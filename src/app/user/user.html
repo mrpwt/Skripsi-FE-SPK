@@ -4,8 +4,8 @@
             <span class="navbar-brand mb-0 h1">Dashboard Mahasiswa</span>
             <div class="d-flex align-items-center text-white">
                 <div class="me-3 text-end" *ngIf="user">
-                    <div class="small fw-bold">{{ mahasiswa.nama }}</div>
-                    <div class="small opacity-75">NIM: {{ mahasiswa.nim }}</div>
+                    <div class="small fw-bold">{{ mahasiswa?.nama }}</div>
+                    <div class="small opacity-75">NIM: {{ mahasiswa?.nim }}</div>
                 </div>
                 <button (click)="logout()" class="btn btn-outline-light btn-sm">Logout</button>
             </div>
@@ -34,43 +34,27 @@
         </ul>
 
         <div *ngIf="!hasStarted" class="card shadow-sm p-4 text-center mb-4">
-
-            <!-- JIKA BELUM PERNAH TES -->
             <div *ngIf="!sudahPernahTes">
                 <h2>👋 Selamat Datang, {{ mahasiswa?.nama }}</h2>
-                <p>
-                    Silakan mulai tes untuk mendapatkan rekomendasi peminatan Anda.
-                </p>
+                <p>Silakan mulai tes untuk mendapatkan rekomendasi peminatan Anda.</p>
                 <button class="btn btn-primary px-4" (click)="startTest()">
                     Mulai Tes 🚀
                 </button>
             </div>
 
-
-            <!-- JIKA SUDAH PERNAH TES -->
             <div *ngIf="sudahPernahTes">
-
                 <h2>👋 Selamat Datang, {{ mahasiswa?.nama }}</h2>
-
                 <p>
-                    Anda sudah pernah mengikuti tes dengan hasil rekomendasi terbaik Bidang {{ nameBidang.namaBidang }}.
+                    Anda sudah pernah mengikuti tes dengan hasil rekomendasi terbaik
+                    <span class="badge bg-primary fs-6">Bidang {{ nameBidang?.namaBidang }}</span>.
                 </p>
-
-                <p>
-                    Apakah Anda ingin melakukan tes ulang?
-                </p>
-
+                <p class="text-muted small">Apakah Anda ingin melakukan tes ulang?</p>
                 <button class="btn btn-primary" (click)="ulangTest()">
                     🔄 Test Ulang
                 </button>
-
             </div>
-
-
         </div>
 
-
-        <!-- CONTENT -->
         <div [ngSwitch]="activeTab" *ngIf="hasStarted">
             <app-test *ngSwitchCase="'test'" (complete)="handleTestComplete($event)"></app-test>
 
@@ -80,6 +64,111 @@
 
             <app-recommendation-results *ngSwitchCase="'results'" [results]="hasilRekomendasi">
             </app-recommendation-results>
+        </div>
+
+        <div class="mt-5 mb-4" *ngIf="!hasStarted">
+            <div class="d-flex align-items-center mb-3">
+                <h4 class="fw-bold text-dark m-0">📋 Riwayat Hasil Rekomendasi Peminatan</h4>
+            </div>
+
+            <div *ngIf="listHistory.length === 0" class="card border-0 shadow-sm p-4 text-center text-muted">
+                <span class="fs-4 mb-1">🍃</span>
+                <span class="small">Belum ada rekam jejak riwayat kalkulasi rekomendasi peminatan.</span>
+            </div>
+
+            <div class="d-flex flex-column gap-3" *ngIf="listHistory.length > 0">
+                <div class="card border-0 shadow-sm bg-white overflow-hidden" *ngFor="let history of listHistory">
+
+                    <div class="card-header bg-white border-0 p-3 d-flex justify-content-between align-items-center position-relative transition-all"
+                        (click)="toggleExpand(history)" style="cursor: pointer; user-select: none;">
+
+                        <div class="d-flex align-items-center gap-3">
+                            <span
+                                class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded fs-6 fw-bold">
+                                🥇 Rekomendasi: {{ getBidangName(history.bidangRekomendasi) }}
+                            </span>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="badge bg-light text-secondary border px-3 py-2 rounded font-monospace small">
+                                📅 {{ history.tanggalPenilaian | date:'dd MMMM yyyy, HH:mm' }} WIB
+                            </span>
+                            <span class="text-secondary fw-bold small transition-transform"
+                                [style.transform]="history.isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'"
+                                style="display: inline-block;">
+                                ▼
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Detail Expand / Accordion Area (Model Raport Nilai Kriteria SAW) -->
+                    <div class="card-body bg-light-subtle border-top p-4" *ngIf="history.isExpanded">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="text-muted small fw-bold text-uppercase tracking-wider">
+                                📊 Raport Nilai Normalisasi Kriteria Per Bidang
+                            </div>
+
+                            <button (click)="cetakPdf(history.id, history.nim)"
+                                class="btn btn-danger btn-sm d-inline-flex align-items-center gap-2 shadow-sm fw-bold">
+                                <i class="bi bi-file-earmark-pdf-fill"></i> 📄 Cetak Raport PDF
+                            </button>
+                        </div>
+
+                        <div class="table-responsive bg-white border rounded shadow-sm">
+                            <table class="table table-bordered table-striped table-hover m-0 align-middle">
+                                <thead class="table-primary text-center small text-uppercase">
+                                    <tr>
+                                        <th style="width: 60px;">No</th>
+                                        <th class="text-start">Nama Alternatif (Peminatan Bidang)</th>
+                                        <th *ngFor="let key of getKriteriaKeys(history.detailSkorParsed[0]?.normalizedValues)"
+                                            style="width: 120px;">
+                                            {{ key }}
+                                        </th>
+                                        <th class="table-warning text-dark" style="width: 140px;">Nilai Akhir</th>
+                                        <th style="width: 100px;">Peringkat</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-center font-monospace">
+                                    <tr *ngFor="let skor of history.detailSkorParsed; let i = index">
+                                        <td>{{ i + 1 }}</td>
+                                        <td class="text-start fw-bold font-sans-serif text-dark">
+                                            {{ getBidangName(skor.bidangId) }}
+                                            <span *ngIf="skor.ranking === 1"
+                                                class="badge bg-success-subtle text-success small ms-1">Direkomendasikan</span>
+                                        </td>
+                                        <td
+                                            *ngFor="let key of getKriteriaKeys(history.detailSkorParsed[0]?.normalizedValues)">
+                                            <span class="fw-semibold text-secondary">
+                                                {{ skor.normalizedValues?.[key] || '0.00' }}
+                                            </span>
+                                        </td>
+                                        <td class="table-warning-subtle fw-bold text-primary fs-6">
+                                            {{ skor.skorAkhir }}
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-circle p-2 fs-7"
+                                                [class.bg-primary]="skor.ranking === 1"
+                                                [class.bg-secondary]="skor.ranking > 1"
+                                                style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;">
+                                                {{ skor.ranking }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-text text-muted mt-2 small">
+                            * Nilai di atas merupakan nilai kriteria ter-normalisasi (R<sub>ij</sub>) yang dikalikan
+                            dengan bobot kriteria (W<sub>j</sub>) dalam perhitungan metode Simple Additive Weighting
+                            (SAW).
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
