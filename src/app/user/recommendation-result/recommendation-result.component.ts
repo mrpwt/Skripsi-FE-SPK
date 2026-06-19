@@ -97,4 +97,42 @@ export class RecommendationResultComponent {
       }
     });
   }
+
+  getRank(index: number): number {
+    if (!this.results.length) return 0;
+
+    const currentScore = this.results[index].skorAkhir;
+
+    const higherScores = this.results.filter(
+      r => r.skorAkhir > currentScore
+    ).length;
+
+    return higherScores + 1;
+  }
+
+  isTie(score: number): boolean {
+    return this.results.filter(
+      r => r.skorAkhir === score
+    ).length > 1;
+  }
+
+  hasTieForTopRank(): boolean {
+    if (!this.results.length) return false;
+
+    const topScore = this.results[0].skorAkhir;
+
+    return this.results.filter(
+      r => r.skorAkhir === topScore
+    ).length > 1;
+  }
+
+  getTopRankResults(): HasilRekomendasiDto[] {
+    if (!this.results.length) return [];
+
+    const topScore = this.results[0].skorAkhir;
+
+    return this.results.filter(
+      r => r.skorAkhir === topScore
+    );
+  }
 }

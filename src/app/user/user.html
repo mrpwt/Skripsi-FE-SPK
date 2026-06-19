@@ -85,7 +85,13 @@
                         <div class="d-flex align-items-center gap-3">
                             <span
                                 class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded fs-6 fw-bold">
-                                🥇 Rekomendasi: {{ getBidangName(history.bidangRekomendasi) }}
+
+                                {{
+                                hasTieInHistory(history.detailSkorParsed)
+                                ? '🤝 Rekomendasi Seri'
+                                : '🥇 Rekomendasi: ' + getBidangName(history.bidangRekomendasi)
+                                }}
+
                             </span>
                         </div>
 
@@ -134,8 +140,18 @@
                                         <td>{{ i + 1 }}</td>
                                         <td class="text-start fw-bold font-sans-serif text-dark">
                                             {{ getBidangName(skor.bidangId) }}
-                                            <span *ngIf="skor.ranking === 1"
-                                                class="badge bg-success-subtle text-success small ms-1">Direkomendasikan</span>
+
+                                            <span *ngIf="getRankFromHistory(skor, history.detailSkorParsed) === 1"
+                                                class="badge bg-success-subtle text-success small ms-1">
+
+                                                {{
+                                                isTieHistory(skor, history.detailSkorParsed)
+                                                ? 'Direkomendasikan (Seri)'
+                                                : 'Direkomendasikan'
+                                                }}
+
+                                            </span>
+
                                         </td>
                                         <td
                                             *ngFor="let key of getKriteriaKeys(history.detailSkorParsed[0]?.normalizedValues)">
@@ -148,10 +164,14 @@
                                         </td>
                                         <td>
                                             <span class="badge rounded-circle p-2 fs-7"
-                                                [class.bg-primary]="skor.ranking === 1"
-                                                [class.bg-secondary]="skor.ranking > 1"
+                                                [class.bg-primary]="getRankFromHistory(skor, history.detailSkorParsed) === 1"
+                                                [class.bg-secondary]="getRankFromHistory(skor, history.detailSkorParsed) > 1"
                                                 style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;">
-                                                {{ skor.ranking }}
+                                                {{ getRankFromHistory(skor, history.detailSkorParsed) }}
+
+                                                <small *ngIf="isTieHistory(skor, history.detailSkorParsed)">
+                                                    (S)
+                                                </small>
                                             </span>
                                         </td>
                                     </tr>

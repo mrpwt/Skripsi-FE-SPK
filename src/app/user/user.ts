@@ -257,4 +257,32 @@ export class UserComponent {
   getKriteriaKeysPdf(obj: any): string[] {
     return obj ? Object.keys(obj).sort() : [];
   }
+
+  getRankFromHistory(current: any, allScores: any[]): number {
+    const higherScores = allScores.filter(
+      x => Number(x.skorAkhir) > Number(current.skorAkhir)
+    ).length;
+
+    return higherScores + 1;
+  }
+
+  isTieHistory(current: any, allScores: any[]): boolean {
+    return allScores.filter(
+      x => Number(x.skorAkhir) === Number(current.skorAkhir)
+    ).length > 1;
+  }
+
+  hasTieInHistory(scores: any[]): boolean {
+    if (!scores || scores.length === 0) {
+      return false;
+    }
+
+    const maxScore = Math.max(
+      ...scores.map(x => Number(x.skorAkhir))
+    );
+
+    return scores.filter(
+      x => Number(x.skorAkhir) === maxScore
+    ).length > 1;
+  }
 }
